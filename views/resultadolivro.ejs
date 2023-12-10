@@ -1,0 +1,43 @@
+
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Autor</th>
+        <th>Gênero</th>
+        <th>Edição</th>
+        <th>Quantidade de Páginas</th>
+        <th>Exemplares disponíveis</th>
+        <th>Editar informações</th>
+        <th>Apagar Livro</th>
+    </tr>
+
+    <% for (var i=0; i < Livros.length; i++) { %>
+        <tr>
+            <td>
+                <%= Livros[i].nome %>
+            </td>
+            <td>
+                <%= Livros[i].autor %>
+            </td>
+            <td>
+                <%= Livros[i].genero %>
+            </td>
+            <td>
+                <%= Livros[i].edicao %>
+            </td>
+            <td>
+                <%= Livros[i].paginas %>
+            </td>
+            <td>
+                <%= Livros[i].exemplares %>
+            </td>
+            <td>
+                <a href='/alterainfor?id= <%= Livros[i].id %>'> Alterar </a>
+            </td>
+            <td>
+                <a href='/excluirlivro?id= <%= Livros[i].id %>' onclick="return confirm('Tem certeza que deseja excluir?')"> Excluir </a>
+            </td>
+        </tr>
+    <% } %>
+</table>
+<%- include("rodape") %>

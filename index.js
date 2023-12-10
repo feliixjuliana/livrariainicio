@@ -1,45 +1,31 @@
-const express = require('express'); //npm install express
+const express = require('express'); 
 const app = express();
 const port = 1500;
 app.use(express.static('aquitem'));
-const bodyParser = require("body-parser"); // Instalar o npm install body-parser, pois os dados puxados pelo post vem codificados, sendo necessário o decoficador.
-const urlencodedParser = bodyParser.urlencoded({ extended: false }); //Segundo parâmetro.
-const Sequelize = require('sequelize') //Conectando no banco de dados, foi necessário o npm install --save sequelize, npm install mysql2, ao fim criar um banco de dados com o nome "palavrasdejulietta" 
-const sequelize = new Sequelize('palavrasdejulietta','root','86205724',{
-host:'localhost',
-dialect:'mysql'
-})
-sequelize.authenticate().then(function(){
-console.log("Ihaaa, foi conectado!!")
-}).catch(function(erro){
-console.log(" :( Erro ao conectar: "+ erro) 
-})
+const bodyParser = require("body-parser"); 
 
-//Criação do model
-const Livros = sequelize.define('Livro',{
-    nome: {
-    type: Sequelize.STRING
-    },
-    autor: {
-    type: Sequelize.STRING
-    },
-    genero: {
-    type: Sequelize.STRING
-    },
-    edicao: {
-    type: Sequelize.DOUBLE
-    },
-    paginas: {
-    type: Sequelize.DOUBLE
-    },
-    exemplares: {
-    type: Sequelize.DOUBLE
-    },
-    }
-    )
+app.set('view engine', 'ejs');
+app.set('views', './views');
 
-//Preenchendo tabela e puxando informações
-Livros.sync()
+const { Op } = require('sequelize');
+app.use(express.static('aquitem'));
+
+const urlencodedParser = bodyParser.urlencoded({ extended: false }); 
+
+const Livros = require('./model/Livros.js')
+
+app.get('/', (req, res) => {
+  res.render('home')
+});
+
+app.get('/cadastro', (req, res) => {
+  res.render('entrada')
+});
+
+app.get('/busca', (req, res) => {
+  res.render('buscaLivro')
+});
+
 app.post('/livros', urlencodedParser, (req, res) => {
     var nomeLivro = req.body.nomeLivro;
     var autorLivro = req.body.autorLivro;
@@ -65,6 +51,111 @@ app.post('/livros', urlencodedParser, (req, res) => {
     });
   });
 
+  app.post('/buscalivros', urlencodedParser, (req, res) => {
+
+    var nomeBusca = req.body.nomeBusca
+    nomeBuscaa = '%' + nomeBusca + '%';
+
+    Livros.findAll({
+        where: { nome: { [Op.like]: nomeBuscaa } }
+    }).then(function (livro) {
+        console.log(livro)
+
+
+        res.render('resultadolivro', { Livros: livro });
+
+
+    }).catch(function (erro) {
+        console.log("Erro na busca dos livros: " + erro)
+    })
+});
+
+app.get('/alterainfor', (req, res) => {
+
+  var idlivro = req.query.id;
+
+  Livros.findOne({
+      where: { id: idlivro }
+  }).then(function (livro) {
+      console.log(livro)
+
+      var formulario = "<form action='/infoatualizada' method='post'>";
+      formulario += "<input type = 'hidden' name='id' value='" + livro.id + "'>";
+      formulario += "Nome do Livro: <input type='text' name='nome' id='nome' value='" + livro.nome + "'> <br> "
+      formulario += "Autor: <input type='text' name='autor' id='autor' value='" + livro.autor + "'><br>";
+      formulario += "Gênero: <input type='text' name='genero' id='genero' value='" + livro.genero + "'> <br>"
+      formulario += "Edição: <input type='text' name='edicao' id='edicao' value='" + livro.edicao + "'> <br> "
+      formulario += "Páginas: <input type='text' name='paginas' id='paginas' value='" + livro.paginas + "'> <br> "
+      formulario += "Exemplares: <input type='text' name='exemplares' id='exemplares' value='" + livro.exemplares + "'> <br> "
+      formulario += "<input type='submit' value='Atualizar'>"
+      formulario += "</form>";
+
+      res.send(formulario)
+     
+      //res.render('alteracao', { Livros: livro });
+
+
+  }).catch(function (erro) {
+      console.log("Erro na atualização: " + erro)
+  })
+
+})
+
+app.post("/infoatualizada", urlencodedParser, (req, res) => {
+
+  var idLivro = req.body.id;
+  var nomeLivro = req.body.nome;
+  var autorLivro = req.body.autor;
+  var generoLivro = req.body.genero;
+  var edicaoLivro = req.body.edicao;
+  var quantPagLivro = req.body.paginas;
+  var quantexemplares = req.body.exemplares;
+
+  Livros.update(
+      {
+          nome: nomeLivro,
+          autor: autorLivro,
+          genero: generoLivro,
+          edicao: edicaoLivro,
+          paginas: quantPagLivro,
+          exemplares: quantexemplares
+      },
+      {
+          where: {
+              id: idLivro
+          }
+      }
+  ).then(function (Livro) {
+     res.send("Você conseguiu com sucesso atualizar as informações do livro.")
+  }).catch(function (erro) {
+      res.send("Erro ao atualizar as informações, verifique sua conexão.")
+  })
+})
+
+
+app.get('/excluirlivro', (req, res) => {
+
+  var idlivro = req.query.id;
+
+  Livros.destroy({
+      where: {
+          id: idlivro
+      }
+  }).then(function () {
+
+      res.send("Livro excluído com sucesso do sistema.");
+
+
+  }).catch(function (erro) {
+      console.log(erro)
+      res.send("Erro ao excluir o livro da estante: " + erro)
+  })
+
+});
+
+
+
+
 app.listen(port, () => {
-    console.log(`http://localhost:` + 1500 + '/entrada.html');
+    console.log(`http://localhost:` + 1500 );
 });
