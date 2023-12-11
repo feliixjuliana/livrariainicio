@@ -51,24 +51,33 @@ app.post('/livros', urlencodedParser, (req, res) => {
     });
   });
 
-  app.post('/buscalivros', urlencodedParser, (req, res) => {
+app.post('/buscalivros', urlencodedParser, (req, res) => {
 
-    var nomeBusca = req.body.nomeBusca
-    nomeBuscaa = '%' + nomeBusca + '%';
+  var nomeBusca = req.body.nomeBusca;
+  var autorBusca = req.body.autorBusca;
+  var generoBusca = req.body.generoBusca;
 
-    Livros.findAll({
-        where: { nome: { [Op.like]: nomeBuscaa } }
-    }).then(function (livro) {
-        console.log(livro)
+  var procurandoLivros = {};
+  if (nomeBusca !== "") {
+      procurandoLivros.nome = { [Op.like]: '%' + nomeBusca + '%' };
+  }
+  if (autorBusca !== "") {
+      procurandoLivros.autor = { [Op.like]: '%' + autorBusca + '%' };
+  }
+  if (generoBusca !== "") {
+    procurandoLivros.genero = { [Op.like]: '%' + generoBusca + '%' };
+  }
 
-
-        res.render('resultadolivro', { Livros: livro });
-
-
-    }).catch(function (erro) {
-        console.log("Erro na busca dos livros: " + erro)
-    })
+  Livros.findAll({
+      where: procurandoLivros
+  }).then(function (livro) {
+      console.log(livro);
+      res.render('resultadolivro', { Livros: livro });
+  }).catch(function (erro) {
+      console.log("Não foi possível achar esse livro");
+  });
 });
+
 
 app.get('/alterainfor', (req, res) => {
 
