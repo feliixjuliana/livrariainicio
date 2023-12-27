@@ -1,0 +1,38 @@
+<%- include("cabecalho") %>
+
+<table>
+    <tr>
+        <th>Login</th>
+        <th>Nome</th>
+        <th>Perfil</th>
+        <th>Senha</th>
+        <th>Alterar</th>
+        <th>Excluir</th>
+    </tr>
+    <% for (var i=0; i < Usuario.length; i++) { %>
+        <tr>
+            <td>
+                <%= Usuario[i].login %>
+            </td>
+            <td>
+                <%= Usuario[i].nome %>
+            </td>
+            <td>
+                <%= Usuario[i].perfil %>
+            </td>
+            <td>
+                <%= Usuario[i].senha %>
+            </td>
+            
+            <td>
+                <a href='/alteraUsuario?id= <%= Usuario[i].id %>'> Alterar </a>
+            </td>
+            <td>
+                <a href='/excluirUsuario?id= <%= Usuario[i].id %>' onclick="return confirm('Tem certeza que deseja excluir?')"> Excluir </a>
+            </td>
+        </tr>
+    <% } %>
+</table>
+
+<%- include("tabela") %>
+<%- include("rodape") %>

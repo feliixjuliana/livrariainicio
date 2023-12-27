@@ -1,0 +1,17 @@
+<%- include ("cabecalho") %>
+
+<h3>Informe as seguintes informações para realizar seu cadastro:</h3>
+<form action="/cadastrandoUsuario" method="post">
+    Login
+    <input type="text" name="loginUsuario" id="loginUsuario"><br>
+    Nome
+    <input type="text" name="nomeUsuario" id="nomeUsuario"><br>
+    Perfil
+    <input type="text" name="perfilUsuario" id="perfilUsuario"><br>
+    Senha
+    <input type="password" name="senhaUsuario" id="senhaUsuario"><br>
+    <input type="submit" value="Cadastrar">
+</form>
+
+<%- include ("formularioFlex") %>
+<%- include ("rodape") %>
